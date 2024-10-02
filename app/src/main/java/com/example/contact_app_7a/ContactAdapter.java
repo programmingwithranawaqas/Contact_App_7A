@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,10 +18,17 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
     Context context;
     int resource;
 
+    public interface ContactSelected{
+        public void onConatctClick(int position);
+    }
+
+    ContactSelected contactSelected;
+
     public ContactAdapter(@NonNull Context context,int resource, @NonNull List<Contact> objects) {
         super(context, resource, objects);
         this.context = context;
         this.resource = resource;
+        contactSelected = (ContactSelected) context;
     }
 
     @NonNull
@@ -38,6 +46,13 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
         TextView tvName = convertView.findViewById(R.id.tvContact_Name);
         ImageView ivProfile_pic = convertView.findViewById(R.id.ivProfile_pic);
         tvName.setText(contact.getName());
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                contactSelected.onConatctClick(position);
+            }
+        });
 
         if(contact.getGender().equals("Male"))
             ivProfile_pic.setImageResource(R.drawable.icon_person);
