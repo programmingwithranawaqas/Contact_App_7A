@@ -1,10 +1,14 @@
 package com.example.contact_app_7a;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -20,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 
@@ -80,11 +85,6 @@ public class MainActivity extends AppCompatActivity implements ContactAdapter.Co
 
         lvContact_list = contactListFrag.getView().findViewById(R.id.contact_list);
         contacts = new ArrayList<>();
-        contacts.add(new Contact("Ali","123","Honda Mor", "Male"));
-        contacts.add(new Contact("Kashaf","","","Female"));
-        contacts.add(new Contact("Kazmi","","", "Male"));
-        contacts.add(new Contact("Waqas","","", "Male"));
-        contacts.add(new Contact("Jahangir","","", "Male"));
 
         ContactAdapter contactAdapter = new ContactAdapter(this, R.layout.single_contact_design, contacts);
         lvContact_list.setAdapter(contactAdapter);
@@ -94,25 +94,57 @@ public class MainActivity extends AppCompatActivity implements ContactAdapter.Co
             @Override
             public void onClick(View view) {
 
-                AlertDialog.Builder add_dialog = new AlertDialog.Builder(MainActivity.this);
-                add_dialog.setTitle("Add New Record");
-                add_dialog.setMessage("Do you really want to add new record?");
+                Dialog newContactDialog = new Dialog(MainActivity.this);
+                View v = LayoutInflater.from(MainActivity.this).inflate(R.layout.add_contact_dialog_design, null, false);
+                newContactDialog.setContentView(v);
 
-                add_dialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                newContactDialog.show();
+
+                TextInputEditText etName, etContact, etAddress, etGender;
+                etName = v.findViewById(R.id.etName);
+                etContact = v.findViewById(R.id.etContact);
+                etAddress = v.findViewById(R.id.etAddress);
+                etGender = v.findViewById(R.id.etGender);
+
+                Button btnAdd, btnCancel;
+                btnAdd = v.findViewById(R.id.btnAdd);
+                btnCancel = v.findViewById(R.id.btnCancel);
+
+                btnAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        contacts.add(new Contact("New Contact", "1111", "xyz", "Female"));
-                                        contactAdapter.notifyDataSetChanged();
+                    public void onClick(View view) {
+                        String name = etName.getText().toString().trim();
+                        String contact = etContact.getText().toString().trim();
+                        String address = etAddress.getText().toString().trim();
+                        String gender = etGender.getText().toString().trim();
+                        if(name.isEmpty() || contact.isEmpty() || TextUtils.isEmpty(address) || gender.isEmpty())
+                        {
+                            Toast.makeText(MainActivity.this, "Something is missing", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        Contact newContact = new Contact(name, contact, address, gender);
+                        contacts.add(newContact);
+                        contactAdapter.notifyDataSetChanged();
+                        Toast.makeText(MainActivity.this, "Contact added successfully", Toast.LENGTH_SHORT).show();
+                        newContactDialog.dismiss();
+//                        newContactDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//                            @Override
+//                            public void onDismiss(DialogInterface dialogInterface) {
+//                                dialogInterface.dismiss();
+//                            }
+//                        });
+
                     }
                 });
-                add_dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                btnCancel.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(MainActivity.this, "Thank you", Toast.LENGTH_SHORT).show();
+                    public void onClick(View view) {
+                        newContactDialog.dismiss();
                     }
                 });
 
-                add_dialog.show();
+
 
             }
         });
